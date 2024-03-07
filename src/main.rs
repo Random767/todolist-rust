@@ -9,8 +9,6 @@ fn main() {
 }
 
 fn start() {
-    // Função responsável pela configuração e 
-    // configuração do código
     let mut tasks: Vec<String> = Vec::new();
     let _ = handle_user_inputs(&mut tasks);
 }
@@ -34,10 +32,7 @@ fn handle_user_inputs(tasks: &mut Vec<String>) -> Result<()>{
         match readline {
             Ok(line) => {
                 rl.add_history_entry(line.as_str());
-                if line.len() == 0 {
-                    println!("");
-                    //return;
-                } else {
+                if line.len() != 0 {
                     command_handler(tasks, line.as_str());
                 }
             },
@@ -61,37 +56,39 @@ fn handle_user_inputs(tasks: &mut Vec<String>) -> Result<()>{
 }
 
 fn command_handler(tasks: &mut Vec<String>, pure_input: &str) {
-    let mut args_splited: Vec<String> = Vec::new();
-    for word in pure_input.split_whitespace() {
-        args_splited.push(word.to_string());
-    }
+    let mut args_splited: Vec<String> = pure_input.split_whitespace().map(|s| s.to_string()).collect();
 
     let command = args_splited.remove(0);
-    println!("Comando recebido: {}", command);
 
     let argument_treated = args_splited.join(" ");
 
-    if command == "add" {
-        if args_splited.len() == 0 {
-            return println!("O nome da tarefa não pode ser vazio");
+    match command.as_str() {
+        "add" => {
+            if args_splited.is_empty() {
+                return println!("O nome da tarefa não pode ser vazio");
+            }
+            let index = find_index(tasks, argument_treated.clone());
+            if index != -1 {
+                println!("Essa tarefa já existe");
+            } else {
+                create_task(tasks, argument_treated);
+                println!("Tarefa adicionada");
+            }
         }
-        let index = find_index(tasks, argument_treated.clone());
-        if index != -1 {
-            println!("Essa tarefa já existe");
+        "list" => {
+            let mut i = 0;
+            while i < tasks.len() {
+                println!("{}. {}", i, tasks[i]);
+                i += 1;
+            }
         }
-        create_task(tasks, argument_treated);
-        println!("Tarefa adicionada");
-    } else if command == "list" {
-        let mut i = 0;
-        while i < tasks.len() {
-            println!("{}. {}", i, tasks[i]);
-            i += 1;
+        "exit" => {
+            println!("Saindo...");
+            exit(0);
         }
-    } else if command == "exit" {
-        println!("Saindo...");
-        exit(0);
-    } else {
-        println!("[Erro] Comando não encontrado");
+        _ => {
+            println!("[Erro] Comando não encontrado");
+        }
     }
 }
 
@@ -100,28 +97,15 @@ fn create_task(tasks: &mut Vec<String>, name: String) {
 }
 
 fn find_index(tasks: &mut Vec<String>, to_find: String) -> i32 {
-    // Criar uma função que procure 
-    // pelo nome da tarefa no vetor 
-    // e retorne a index do valor
-
-    println!("To find: {}", to_find);
     if tasks.len() == 0 {
         return -1;
     }
     let index = tasks.iter().position(|r| r.to_string() == to_find).unwrap();
-    println!("Index encontrada: {}", index);
     return index as i32;
 }
 
-// TO-DO: Criar um script para separar 
-// o comando do usuário para o argumento
 
-// TO-DO: Criar os comandos :D
 // lembre-se de estudar vetores
 // ou estudar melhor para ver se 
 // armazenar lista de afazeres 
 // em vetores é uma boa opção
-//
-//Nota 04/03/2024: Consertar erros envolvendo 
-//o vetor "tasks" na função find_index
-//

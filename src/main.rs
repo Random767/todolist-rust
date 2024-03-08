@@ -82,6 +82,15 @@ fn command_handler(tasks: &mut Vec<String>, pure_input: &str) {
                 i += 1;
             }
         }
+        "remove" => {
+            let index = find_index(tasks, argument_treated.try_into().unwrap());
+            if index == -1 {
+                println!("Tarefa não encontrada");
+            } else {
+                tasks.remove(index.try_into().unwrap());
+                println!("Tarefa removida");
+            }
+        }
         "exit" => {
             println!("Saindo...");
             exit(0);
@@ -100,7 +109,13 @@ fn find_index(tasks: &mut Vec<String>, to_find: String) -> i32 {
     if tasks.len() == 0 {
         return -1;
     }
-    let index = tasks.iter().position(|r| r.to_string() == to_find).unwrap();
+
+    let index = match tasks.iter().position(|r| r.to_string() == to_find) {
+        Some(index) => index,
+        None => {
+            return - 1
+        }
+    };
     return index as i32;
 }
 

@@ -83,12 +83,15 @@ fn command_handler(tasks: &mut Vec<String>, pure_input: &str) {
             }
         }
         "remove" => {
+            if args_splited.is_empty() {
+                return println!("O nome da tarefa a ser removida não pode ser vazio");
+            }
             let index = find_index(tasks, argument_treated.try_into().unwrap());
             if index == -1 {
                 println!("Tarefa não encontrada");
             } else {
-                tasks.remove(index.try_into().unwrap());
-                println!("Tarefa removida");
+                let task_name = tasks.remove(index.try_into().unwrap());
+                println!("Tarefa '{}' foi removida", task_name);
             }
         }
         "exit" => {

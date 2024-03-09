@@ -8,12 +8,18 @@ fn main() {
     start();
 }
 
+#[derive(Default)]
+struct Task {
+    name: String,
+    is_marked: bool,
+}
+
 fn start() {
-    let mut tasks: Vec<String> = Vec::new();
+    let mut tasks: Vec<Task> = Vec::new();
     let _ = handle_user_inputs(&mut tasks);
 }
 
-fn handle_user_inputs(tasks: &mut Vec<String>) -> Result<()>{
+fn handle_user_inputs(tasks: &mut Vec<Task>) -> Result<()>{
     let mut rl = DefaultEditor::new()?;
     // Um "?" no final da linha significa que
     // o comando pode retornar um erro
@@ -31,9 +37,12 @@ fn handle_user_inputs(tasks: &mut Vec<String>) -> Result<()>{
         let readline = rl.readline(">> ");
         match readline {
             Ok(line) => {
-                rl.add_history_entry(line.as_str());
                 if line.len() != 0 {
-                    command_handler(tasks, line.as_str());
+                    rl.add_history_entry(line.as_str());
+                    let mut args_splited: Vec<String> = line.split_whitespace().map(|s| s.to_string()).collect();
+                    let command = args_splited.remove(0).to_string();
+                    let argument_treated = args_splited.join(" ");
+                    command_handler(tasks, &command, &argument_treated);
                 }
             },
             Err(ReadlineError::Interrupted) => {
@@ -55,42 +64,36 @@ fn handle_user_inputs(tasks: &mut Vec<String>) -> Result<()>{
     Ok(())
 }
 
-fn command_handler(tasks: &mut Vec<String>, pure_input: &str) {
-    let mut args_splited: Vec<String> = pure_input.split_whitespace().map(|s| s.to_string()).collect();
-
-    let command = args_splited.remove(0);
-
-    let argument_treated = args_splited.join(" ");
-
-    match command.as_str() {
+fn command_handler(tasks: &mut Vec<Task>, command: &str, args: &str) {
+    match command {
         "add" => {
-            if args_splited.is_empty() {
+            if args.is_empty() {
                 return println!("O nome da tarefa não pode ser vazio");
             }
-            let index = find_index(tasks, argument_treated.clone());
+            let index = find_index(tasks, args.clone());
             if index != -1 {
                 println!("Essa tarefa já existe");
             } else {
-                create_task(tasks, argument_treated);
+                create_task(tasks, args);
                 println!("Tarefa adicionada");
             }
         }
         "list" => {
             let mut i = 0;
             while i < tasks.len() {
-                println!("{}. {}", i, tasks[i]);
+                println!("{}. {}", i, tasks[i].name);
                 i += 1;
             }
         }
         "remove" => {
-            if args_splited.is_empty() {
+            if args.is_empty() {
                 return println!("O nome da tarefa a ser removida não pode ser vazio");
             }
-            let index = find_index(tasks, argument_treated.try_into().unwrap());
+            let index = find_index(tasks, args.try_into().unwrap());
             if index == -1 {
                 println!("Tarefa não encontrada");
             } else {
-                let task_name = tasks.remove(index.try_into().unwrap());
+                let task_name = tasks.remove(index.try_into().unwrap()).name;
                 println!("Tarefa '{}' foi removida", task_name);
             }
         }
@@ -104,16 +107,19 @@ fn command_handler(tasks: &mut Vec<String>, pure_input: &str) {
     }
 }
 
-fn create_task(tasks: &mut Vec<String>, name: String) {
-    tasks.push(name);
+fn create_task(tasks: &mut Vec<Task>, name: &str) {
+    tasks.push(Task {
+        name: name.to_string(),
+        is_marked: false,
+    });
 }
 
-fn find_index(tasks: &mut Vec<String>, to_find: String) -> i32 {
+fn find_index(tasks: &mut Vec<Task>, to_find: &str) -> i32 {
     if tasks.len() == 0 {
         return -1;
     }
 
-    let index = match tasks.iter().position(|r| r.to_string() == to_find) {
+    let index = match tasks.iter().position(|r| r.name.to_string() == to_find) {
         Some(index) => index,
         None => {
             return - 1
@@ -122,8 +128,3 @@ fn find_index(tasks: &mut Vec<String>, to_find: String) -> i32 {
     return index as i32;
 }
 
-
-// lembre-se de estudar vetores
-// ou estudar melhor para ver se 
-// armazenar lista de afazeres 
-// em vetores é uma boa opção

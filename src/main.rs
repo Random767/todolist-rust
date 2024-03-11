@@ -38,7 +38,7 @@ fn handle_user_inputs(tasks: &mut Vec<Task>) -> Result<()>{
         match readline {
             Ok(line) => {
                 if line.len() != 0 {
-                    rl.add_history_entry(line.as_str());
+                    let _ = rl.add_history_entry(line.as_str());
                     let mut args_splited: Vec<String> = line.split_whitespace().map(|s| s.to_string()).collect();
                     let command = args_splited.remove(0).to_string();
                     let argument_treated = args_splited.join(" ");
@@ -70,18 +70,24 @@ fn command_handler(tasks: &mut Vec<Task>, command: &str, args: &str) {
             if args.is_empty() {
                 return println!("O nome da tarefa não pode ser vazio");
             }
-            let index = find_index(tasks, args.clone());
-            if index != -1 {
-                println!("Essa tarefa já existe");
-            } else {
-                create_task(tasks, args);
-                println!("Tarefa adicionada");
+
+            let index = find_index(tasks, args);
+            match index {
+                Some(i) => println!("Essa tarefa já existe"),
+                None => {
+                    create_task(tasks, args);
+                    println!("Tarefa adicionada");
+                },
             }
         }
         "list" => {
             let mut i = 0;
             while i < tasks.len() {
-                println!("{}. {}", i, tasks[i].name);
+                if tasks[i].is_marked {
+                    println!("{}. \x1b[9m{}\x1b[0m", i, tasks[i].name);
+                } else {
+                    println!("{}. {}", i, tasks[i].name);
+                }
                 i += 1;
             }
         }
@@ -90,11 +96,28 @@ fn command_handler(tasks: &mut Vec<Task>, command: &str, args: &str) {
                 return println!("O nome da tarefa a ser removida não pode ser vazio");
             }
             let index = find_index(tasks, args.try_into().unwrap());
-            if index == -1 {
-                println!("Tarefa não encontrada");
-            } else {
-                let task_name = tasks.remove(index.try_into().unwrap()).name;
-                println!("Tarefa '{}' foi removida", task_name);
+            match index {
+                Some(i) => {
+                    let task_name = tasks.remove(i).name;
+                    println!("Tarefa '{}' foi removida", task_name);
+
+                },
+                None => println!("Tarefa não encontrada"),
+            }
+        }
+        "mark" => {
+            if args.is_empty() {
+                return println!("Não posso marcar o nada");
+            }
+            let index = find_index(tasks, args.try_into().unwrap());
+            match index {
+                Some(i) => {
+                    tasks[i].is_marked = true;
+                    println!("Tarefa marcada com sucesso");
+                }
+                None => {
+                    println!("Tarefa não encontrada");
+                }
             }
         }
         "exit" => {
@@ -114,17 +137,7 @@ fn create_task(tasks: &mut Vec<Task>, name: &str) {
     });
 }
 
-fn find_index(tasks: &mut Vec<Task>, to_find: &str) -> i32 {
-    if tasks.len() == 0 {
-        return -1;
-    }
-
-    let index = match tasks.iter().position(|r| r.name.to_string() == to_find) {
-        Some(index) => index,
-        None => {
-            return - 1
-        }
-    };
-    return index as i32;
+fn find_index(tasks: &mut Vec<Task>, to_find: &str) -> Option<usize> {
+    tasks.iter().position(|r| r.name.to_string() == to_find)
 }
 

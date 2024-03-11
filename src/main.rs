@@ -120,6 +120,21 @@ fn command_handler(tasks: &mut Vec<Task>, command: &str, args: &str) {
                 }
             }
         }
+        "unmark" => {
+            if args.is_empty() {
+                return println!("Não posso desmarcar o nada");
+            }
+            let index = find_index(tasks, args.try_into().unwrap());
+            match index {
+                Some(i) => {
+                    tasks[i].is_marked = false;
+                    println!("Tarefa desmarcada com sucesso");
+                }
+                None => {
+                    println!("Tarefa não encontrada");
+                }
+            }
+        }
         "exit" => {
             println!("Saindo...");
             exit(0);

@@ -21,13 +21,8 @@ fn start() {
 
 fn handle_user_inputs(tasks: &mut Vec<Task>) -> Result<()>{
     let mut rl = DefaultEditor::new()?;
-    // Um "?" no final da linha significa que
-    // o comando pode retornar um erro
     
     #[cfg(feature = "with-file-history")]
-    // Essa linha de cima basicamente diz ao  
-    // compilador que a flag with-file-history 
-    // precisa estar ativa
 
     if rl.load_history("command_history.txt").is_err() {
         println!("Histórico de comandos não encontrado");

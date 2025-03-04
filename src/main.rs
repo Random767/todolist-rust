@@ -21,8 +21,6 @@ fn start() {
 
 fn handle_user_inputs(tasks: &mut Vec<Task>) -> Result<()>{
     let mut rl = DefaultEditor::new()?;
-    
-    #[cfg(feature = "with-file-history")]
 
     if rl.load_history("command_history.txt").is_err() {
         println!("Histórico de comandos não encontrado");
@@ -54,8 +52,6 @@ fn handle_user_inputs(tasks: &mut Vec<Task>) -> Result<()>{
             }
         }
     }
-    #[cfg(feature = "with-file-history")]
-    rl.save_history("command_history.txt");
     Ok(())
 }
 

@@ -71,9 +71,9 @@ fn command_handler(tasks: &mut Vec<Task>, command: &str, args: &str) {
             let mut i = 0;
             while i < tasks.len() {
                 if tasks[i].is_marked {
-                    println!("{}. \x1b[9m{}\x1b[0m", i, tasks[i].name);
+                    println!("{}. \x1b[9m{}\x1b[0m", i+1, tasks[i].name);
                 } else {
-                    println!("{}. {}", i, tasks[i].name);
+                    println!("{}. {}", i+1, tasks[i].name);
                 }
                 i += 1;
             }

@@ -22,10 +22,6 @@ fn start() {
 fn handle_user_inputs(tasks: &mut Vec<Task>) -> Result<()>{
     let mut rl = DefaultEditor::new()?;
 
-    if rl.load_history("command_history.txt").is_err() {
-        println!("Histórico de comandos não encontrado");
-    }
-
     loop {
         let readline = rl.readline(">> ");
         match readline {

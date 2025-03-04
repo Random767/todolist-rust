@@ -73,7 +73,7 @@ fn command_handler(tasks: &mut Vec<Task>, command: &str, args: &str) {
 
             let index = find_index(tasks, args);
             match index {
-                Some(i) => println!("Essa tarefa já existe"),
+                Some(_) => println!("Essa tarefa já existe"),
                 None => {
                     create_task(tasks, args);
                     println!("Tarefa adicionada");
